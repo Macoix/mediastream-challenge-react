@@ -62,14 +62,51 @@ export default function Exercise01 () {
     }
   ])
 
-  const getTotal = () => 0 // TODO: Implement this
+  const getTotal = () => {
+    let total = 0;
+    cart.forEach(item => total+= item.price * item.quantity);
+    const arrayIds = cart.map(item => item.id);
+    discountRules.forEach( element => {
+      if(element.m.sort().toString() === arrayIds.sort().toString()){
+        const discount = total * element.discount;
+        total = total - discount;
+      }
+    })
+    return total; 
+  }
+
+  const addToCart = (movie)  => {
+    const findItem = cart.findIndex(item => item.id === movie.id);
+    if(findItem >= 0) {
+      cart[findItem].quantity -= 1;
+      setCart([...cart]); 
+    } else {
+      movie.quantity = 1;
+      setCart([...cart, movie]);
+    }
+  }
+
+  const decrementQuantity = (id) => {
+    const findItem = cart.findIndex(item => item.id === id);
+    if(cart[findItem].quantity === 1) {
+      setCart(cart.filter(element => element.id !== id));
+    } else if (cart[findItem].quantity > 1) {
+      cart[findItem].quantity -=  1;
+      setCart([...cart]); 
+    }
+  }
+  const incrementQuantity = (id) => {
+    const findItem = cart.findIndex(item => item.id === id);
+    cart[findItem].quantity = cart[findItem].quantity + 1;
+    setCart([...cart]);
+  }
 
   return (
     <section className="exercise01">
       <div className="movies__list">
         <ul>
           {movies.map(o => (
-            <li className="movies__list-card">
+            <li key={o.id} className="movies__list-card">
               <ul>
                 <li>
                   ID: {o.id}
@@ -81,7 +118,7 @@ export default function Exercise01 () {
                   Price: ${o.price}
                 </li>
               </ul>
-              <button onClick={() => console.log('Add to cart', o)}>
+              <button onClick={() => addToCart(o)}>
                 Add to cart
               </button>
             </li>
@@ -89,37 +126,50 @@ export default function Exercise01 () {
         </ul>
       </div>
       <div className="movies__cart">
-        <ul>
-          {cart.map(x => (
-            <li className="movies__cart-card">
-              <ul>
-                <li>
-                  ID: {x.id}
+        {
+          Boolean(cart.length) ? 
+          (
+          <>
+            <ul>
+              {cart.map(x => (
+                <li key={x.id} className="movies__cart-card">
+                  <ul>
+                    <li>
+                      ID: {x.id}
+                    </li>
+                    <li>
+                      Name: {x.name}
+                    </li>
+                    <li>
+                      Price: ${x.price}
+                    </li>
+                  </ul>
+                  <div className="movies__cart-card-quantity">
+                    <button onClick={() => decrementQuantity(x.id)}>
+                      -
+                    </button>
+                    <span>
+                      {x.quantity}
+                    </span>
+                    <button onClick={() => incrementQuantity(x.id)}>
+                      +
+                    </button>
+                  </div>
                 </li>
-                <li>
-                  Name: {x.name}
-                </li>
-                <li>
-                  Price: ${x.price}
-                </li>
-              </ul>
-              <div className="movies__cart-card-quantity">
-                <button onClick={() => console.log('Decrement quantity', x)}>
-                  -
-                </button>
-                <span>
-                  {x.quantity}
-                </span>
-                <button onClick={() => console.log('Increment quantity', x)}>
-                  +
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-        <div className="movies__cart-total">
-          <p>Total: ${getTotal()}</p>
-        </div>
+              ))}
+            </ul>
+            <div className="movies__cart-total">
+              <p>Total: ${getTotal()}</p>
+            </div>
+          </>
+          ) : (
+            <>
+              <div className="movies__cart-empty">
+              <p>Cart is empty!</p>
+            </div>
+            </>
+          )
+        }
       </div>
     </section>
   )
