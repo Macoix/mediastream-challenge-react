@@ -14,11 +14,15 @@
 
 import "./assets/styles.css";
 import { useEffect, useState } from "react";
+import placeholder from './assets/placeholder.png';
 
 export default function Exercise02 () {
   const [movies, setMovies] = useState([])
   const [fetchCount, setFetchCount] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [genres, setGenres] = useState([]);
+  const [filteredMovies, setFilteredMovies] = useState([]);
+  const [ascFilter, setAscFilter] = useState(true);
 
   const handleMovieFetch = () => {
     setLoading(true)
@@ -27,7 +31,8 @@ export default function Exercise02 () {
     fetch('http://localhost:3001/movies?_limit=50')
       .then(res => res.json())
       .then(json => {
-        setMovies(json)
+        setMovies(json.sort((a,b) => a.year - b.year))
+        setFilteredMovies(json.sort((a,b) => a.year - b.year))
         setLoading(false)
       })
       .catch(() => {
@@ -35,42 +40,86 @@ export default function Exercise02 () {
       })
   }
 
+  const handleGenres = () => {
+    fetch('http://localhost:3001/genres')
+      .then(res => res.json())
+      .then(json => {
+        setGenres(json);
+      })
+      .catch(() => {
+        console.log('Problema')
+      })
+  }
+
+  const handleGenresChange = (value) => {
+    setLoading(true)
+    if(value === 'all') {
+      setFilteredMovies([...movies])
+      setLoading(false)
+      return;
+    }
+    const moviesCopy = [...movies]
+    setFilteredMovies(moviesCopy.filter(movie => movie.genres.includes(value)).sort((a,b) => a.year - b.year));
+    setLoading(false)
+  }
+
+  const handleSortYearButton = () => {
+    if(!ascFilter) {
+      setFilteredMovies(filteredMovies.sort((a,b) => a.year - b.year));
+      setAscFilter(true)
+    } else {
+      setFilteredMovies(filteredMovies.sort((a,b) => b.year - a.year));
+      setAscFilter(false)
+    }
+  }
+
   useEffect(() => {
     handleMovieFetch()
-  }, [handleMovieFetch])
+    handleGenres()
+  }, []);
 
   return (
     <section className="movie-library">
-      <h1 className="movie-library__title">
-        Movie Library
-      </h1>
-      <div className="movie-library__actions">
-        <select name="genre" placeholder="Search by genre...">
-          <option value="genre1">Genre 1</option>
-        </select>
-        <button>Order Descending</button>
-      </div>
-      {loading ? (
-        <div className="movie-library__loading">
-          <p>Loading...</p>
-          <p>Fetched {fetchCount} times</p>
+      <div className="movie-library__wrapper">
+        <h1 className="movie-library__title">
+          Movie Library
+        </h1>
+        <div className="movie-library__actions">
+          <select name="genre" placeholder="Search by genre..." onChange={(e) => handleGenresChange(e.target.value)}>
+            <option value="all">All Movies</option>
+            {
+              genres.map(x => <option value={x}>{x}</option>)
+            }
+          </select>
+          <button onClick={() => handleSortYearButton()}>{ascFilter ? 'Year Ascending' : 'Year Descending'}</button>
         </div>
-      ) : (
-        <ul className="movie-library__list">
-          {movies.map(movie => (
-            <li key={movie.id} className="movie-library__card">
-              <img src={movie.posterUrl} alt={movie.title} />
-              <ul>
-                <li>ID: {movie.id}</li>
-                <li>Title: {movie.title}</li>
-                <li>Year: {movie.year}</li>
-                <li>Runtime: {movie.runtime}</li>
-                <li>Genres: {movie.genres.join(', ')}</li>
-              </ul>
-            </li>
-          ))}
-        </ul>
-      )}
+        {loading ? (
+          <div className="movie-library__loading">
+            <p>Loading...</p>
+            <p>Fetched {fetchCount} times</p>
+          </div>
+        ) : (
+          <ul className="movie-library__list">
+            {filteredMovies.map(movie => (
+              <li key={movie.id} className="movie-library__card">
+                <img 
+                  src={movie?.posterUrl} 
+                  alt={movie.title} 
+                  onError={({currentTarget}) => {
+                    currentTarget.onerror = null;
+                    currentTarget.src = placeholder
+                  }}
+                />
+                <ul>
+                  <li className="movie-title">{movie.title}</li>              
+                  <li className="movie-genres">{movie.genres.join(', ')}</li>
+                  <li className="movie-year">{movie.year}</li>              
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </section>
   )
 }
