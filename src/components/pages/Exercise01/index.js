@@ -78,7 +78,7 @@ export default function Exercise01 () {
   const addToCart = (movie)  => {
     const findItem = cart.findIndex(item => item.id === movie.id);
     if(findItem >= 0) {
-      cart[findItem].quantity -= 1;
+      cart[findItem].quantity += 1;
       setCart([...cart]); 
     } else {
       movie.quantity = 1;
