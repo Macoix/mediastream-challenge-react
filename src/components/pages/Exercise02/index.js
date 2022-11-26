@@ -15,29 +15,31 @@
 import "./assets/styles.css";
 import { useEffect, useState } from "react";
 import placeholder from './assets/placeholder.png';
+import { sortAsc, sortDesc } from "../../../helpers/sorting";
+
 
 export default function Exercise02 () {
-  const [movies, setMovies] = useState([])
-  const [fetchCount, setFetchCount] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const [movies, setMovies] = useState([]);
+  const [fetchCount, setFetchCount] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [genres, setGenres] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [ascFilter, setAscFilter] = useState(true);
 
   const handleMovieFetch = () => {
-    setLoading(true)
-    setFetchCount(fetchCount + 1)
-    console.log('Getting movies')
+    setLoading(true);
+    setFetchCount(fetchCount + 1);
+    console.log('Getting movies');
     fetch('http://localhost:3001/movies?_limit=50')
       .then(res => res.json())
       .then(json => {
-        setMovies(json.sort((a,b) => a.year - b.year))
-        setFilteredMovies(json.sort((a,b) => a.year - b.year))
-        setLoading(false)
+        setMovies(sortAsc(json));
+        setFilteredMovies(sortAsc(json));
+        setLoading(false);
       })
       .catch(() => {
-        console.log('Run yarn movie-api for fake api')
-      })
+        console.log('Run yarn movie-api for fake api');
+      });
   }
 
   const handleGenres = () => {
@@ -47,31 +49,33 @@ export default function Exercise02 () {
         setGenres(json);
       })
       .catch(() => {
-        console.log('Problema')
-      })
+        console.log('Server problem');
+      });
   }
 
   const handleGenresChange = (value) => {
-    setLoading(true)
+    setLoading(true);
     if(value === 'all') {
-      setFilteredMovies([...movies])
-      setLoading(false)
+      setFilteredMovies([...movies]);
+      setLoading(false);
       return;
     }
     const moviesCopy = [...movies]
-    setFilteredMovies(moviesCopy.filter(movie => movie.genres.includes(value)).sort((a,b) => a.year - b.year));
-    setLoading(false)
-  }
+    setFilteredMovies(sortAsc(moviesCopy.filter(movie => movie.genres.includes(value))));
+    setLoading(false);
+  };
 
   const handleSortYearButton = () => {
+    setLoading(true);
     if(!ascFilter) {
-      setFilteredMovies(filteredMovies.sort((a,b) => a.year - b.year));
-      setAscFilter(true)
+      setFilteredMovies(sortAsc(filteredMovies));
+      setAscFilter(true);
     } else {
-      setFilteredMovies(filteredMovies.sort((a,b) => b.year - a.year));
-      setAscFilter(false)
+      setFilteredMovies(sortDesc(filteredMovies));
+      setAscFilter(false);
     }
-  }
+    setLoading(false);
+  };
 
   useEffect(() => {
     handleMovieFetch()
@@ -121,5 +125,5 @@ export default function Exercise02 () {
         )}
       </div>
     </section>
-  )
-}
+  );
+};

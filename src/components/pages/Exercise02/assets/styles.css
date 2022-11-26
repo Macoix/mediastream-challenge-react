@@ -9,6 +9,7 @@
 .movie-library__wrapper {
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 .movie-library:after {
@@ -27,11 +28,12 @@
 .movie-library__title {
   font-size: 2em;
   margin-bottom: 1em;
+  font-weight: 600;
 }
 
 .movie-library__actions {
   display: flex;
-  margin-bottom: 1em;
+  margin-bottom: 3em;
 }
 
 .movie-library__actions select {
@@ -90,7 +92,7 @@
 
 .movie-library__list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   gap: 25px 40px;
 }
 
@@ -143,4 +145,53 @@
 .movie-library__card .movie-year {
   font-size: 12px;
   margin-bottom: 5px;
+}
+
+
+@media (min-width: 576px) {
+  .movie-library__list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px 40px;
+  }
+}
+
+@media (min-width: 768px) {
+  .movie-library__list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px 40px;
+  }
+}
+
+@media (min-width: 992px) {
+  .movie-library__list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px 40px;
+  }
+}
+
+@media (min-width: 1200px) {   
+  .movie-library__wrapper {
+    width: 90%;
+    margin: 0 auto;
+  }
+  .movie-library__list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px 40px;
+  }
+}
+
+@media (min-width: 1400px) {   
+  .movie-library__wrapper {
+    width: 85%;
+    margin: 0 auto;
+  }
+  .movie-library__list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px 40px;
+  }
 }
